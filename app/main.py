@@ -1,8 +1,9 @@
 import socket  # noqa: F401
+import re
 
 def main():
     
-    valid_path = ['/', '/index.html', 'echo']
+    valid_path = ['/', '/index.html', '/echo/.*$']
     http_response_ok = b"HTTP/1.1 200 OK\r\n\r\n"
     http_response_failed = b"HTTP/1.1 404 Not Found\r\n\r\n"
     server_socket = socket.create_server(("localhost", 4221), reuse_port=True)
@@ -16,7 +17,7 @@ def main():
     print(path)
     valid = False
     for item in valid_path:
-        if path == item:
+        if re.match(item, path):
             client_socket.send(http_response_ok)
             valid = True
             break
