@@ -11,11 +11,19 @@ def main():
     msg = client_socket.recv(4096) 
     decoded_msg = msg.decode()
     split_msg = decoded_msg.split('\r\n')
+    request = split_msg[0]
+    split_request = request.split()
+    path = split_request[1]
+    print(path)
+    valid = False
     for item in valid_path:
-        if item in valid_path:
-            client_socket.sendall(http_response_ok)
-        else:
-            client_socket.sendall(http_response_failed)
+        if path == item:
+            client_socket.send(http_response_ok)
+            valid = True
+            break
+
+    if not valid:
+            client_socket.send(http_response_failed)
     
     client_socket.close()
     
