@@ -3,8 +3,7 @@ import re
 
 def main():
     
-    valid_path = ['/', '/index.html', '/echo/.*$']
-    
+    valid_path = ['^/$', '^/index.html$', '^/echo/.*$']
     http_response_failed = b"HTTP/1.1 404 Not Found\r\n\r\n"
     server_socket = socket.create_server(("localhost", 4221), reuse_port=True)
     client_socket, client_address = server_socket.accept()
@@ -17,7 +16,7 @@ def main():
     response_body = path.replace('/echo/', '')
     encode_body = response_body.encode()
     length_content = len(response_body)
-    valid = False
+    
     final_res = (
          f'HTTP/1.1 200 OK\r\n'
          f'Content-Type: text/plain\r\n'
@@ -25,8 +24,11 @@ def main():
          f'\r\n'
     ).encode() + encode_body
     print(final_res)
+    valid = False
     for item in valid_path:
+  
         if re.match(item, path):
+            
             client_socket.send(final_res)
             valid = True
             break
