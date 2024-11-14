@@ -24,6 +24,12 @@ def main():
         response_body = response_body[1]
         encode_body = response_body.encode()
         length_content = len(response_body)
+        final_res = (
+            f'HTTP/1.1 200 OK\r\n'
+            f'Content-Type: text/plain\r\n'
+            f'Content-Length: {length_content}\r\n'
+            f'\r\n'
+            ).encode() + encode_body
         valid = True
     elif path.startswith('/echo'):
         response_body = path.replace('/echo/', '')
