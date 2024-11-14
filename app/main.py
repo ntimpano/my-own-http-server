@@ -16,9 +16,14 @@ def main():
     path = split_request[1]
     response_body = path.replace('/echo/', '')
     encode_body = response_body.encode()
+    length_content = len(response_body)
     valid = False
-    http_response_ok = b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 3\r\n\r\n"
-    final_res = http_response_ok + encode_body
+    final_res = (
+         f'HTTP/1.1 200 OK\r\n'
+         f'Content-Type: text/plain\r\n'
+         f'Content-Length: {length_content}\r\n'
+         f'\r\n'
+    ).encode() + encode_body
     print(final_res)
     for item in valid_path:
         if re.match(item, path):
