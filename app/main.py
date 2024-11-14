@@ -1,9 +1,8 @@
 import socket  # noqa: F401
 
 def main():
-    print("Logs from your program will appear here!")
     
-    valid_path = ['/', '/index.html']
+    valid_path = ['/', '/index.html', 'echo']
     http_response_ok = b"HTTP/1.1 200 OK\r\n\r\n"
     http_response_failed = b"HTTP/1.1 404 Not Found\r\n\r\n"
     server_socket = socket.create_server(("localhost", 4221), reuse_port=True)
