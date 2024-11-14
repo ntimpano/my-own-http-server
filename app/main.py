@@ -1,14 +1,22 @@
 import socket  # noqa: F401
 
-
 def main():
     print("Logs from your program will appear here!")
     
-    
+    valid_path = ['/', '/index.html']
+    http_response_ok = b"HTTP/1.1 200 OK\r\n\r\n"
+    http_response_failed = b"HTTP/1.1 404 Not Found\r\n\r\n"
     server_socket = socket.create_server(("localhost", 4221), reuse_port=True)
     client_socket, client_address = server_socket.accept()
-    http_response = b"HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n"
-    client_socket.sendall(http_response)
+    msg = client_socket.recv(4096) 
+    decoded_msg = msg.decode()
+    split_msg = decoded_msg.split('\r\n')
+    for item in valid_path:
+        if item in valid_path:
+            client_socket.sendall(http_response_ok)
+        else:
+            client_socket.sendall(http_response_failed)
+    
     client_socket.close()
     
 if __name__ == "__main__":
