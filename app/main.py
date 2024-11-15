@@ -20,7 +20,7 @@ def main():
             response_body = path
             content_length = len(path)
         elif 'user-agent' in path:
-            path = split_req[8]
+            path = split_req[6]
             response_body = path
             content_length = len(path)
         else:
