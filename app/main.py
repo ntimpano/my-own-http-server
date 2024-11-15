@@ -14,7 +14,7 @@ def client_handle(client_socket):
         split_req = client_req_decode.split()
 
         path = split_req[1]
-
+        print(f'REQ COMP: {client_req_decode.split('\r\n')}')
         
         if 'echo' in path:
             path = path.replace('/echo/', '')
@@ -33,17 +33,26 @@ def client_handle(client_socket):
             dir = args[dir_index]
             file = path.replace('/files/', '')
             full_path = dir + file
-            if os.path.isfile(full_path):
-                content_length = os.stat(full_path).st_size
-                content_type = 'application/octet-stream'
-                file_content = open(full_path, 'r')
-                content = file_content.read()
-                response_body = content
-                response_ok = (f'HTTP/1.1 200 OK\r\nContent-Type: {content_type}\r\nContent-Length: {content_length}\r\n\r\n{response_body}').encode()
-                print('SE CUMPLIO ESTA CONDICION')
-                file_content.close()
-            else:
-                response_ok = ('HTTP/1.1 404 Not Found\r\n\r\n').encode()
+            if 'GET' in split_req[0]:
+                if os.path.isfile(full_path):
+                    content_length = os.stat(full_path).st_size
+                    content_type = 'application/octet-stream'
+                    with open(full_path, 'r') as file_content:
+                        response_body = file_content.read()
+                    response_ok = (f'HTTP/1.1 200 OK\r\nContent-Type: {content_type}\r\nContent-Length: {content_length}\r\n\r\n{response_body}').encode()
+                else:
+                    response_ok = ('HTTP/1.1 404 Not Found\r\n\r\n').encode()
+            elif 'POST' in split_req[0]:
+                os.makedirs(dir, exist_ok=True)
+                filename = os.path.basename(split_req[1])
+                destination = os.path.join(dir, filename)
+                print(f'DESTINATION: {destination}')
+                with open(destination, 'w') as dst_file:
+                    print(f'DST_FILE: {client_req_decode.split('\r\n')[5]}')
+                    dst_file.write(client_req_decode.split('\r\n')[5])         
+                print(f'CREATED FILE: {destination}')
+                response_ok = b'HTTP/1.1 201 Created\r\n\r\n'
+                
         else:
             path = path.replace('/', '')
             response_body = path
