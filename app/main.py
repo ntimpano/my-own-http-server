@@ -23,6 +23,9 @@ def main():
             path = split_req[6]
             response_body = path
             content_length = len(path)
+        elif path == '/':
+            response_body = path
+            content_length = len(path)
         else:
             path = path.replace('/', '')
             response_body = path
