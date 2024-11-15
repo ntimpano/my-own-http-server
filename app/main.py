@@ -19,19 +19,24 @@ def main():
             path = path.replace('/echo/', '')
             response_body = path
             content_length = len(path)
+            response_ok = (f'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {content_length}\r\n\r\n{response_body}').encode()
         elif 'user-agent' in path:
             path = split_req[6]
             response_body = path
             content_length = len(path)
+            response_ok = (f'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {content_length}\r\n\r\n{response_body}').encode()
         elif path == '/':
             response_body = path
             content_length = len(path)
+            response_ok = (f'HTTP/1.1 200 OK\r\n\r\n').encode()
         else:
             path = path.replace('/', '')
             response_body = path
             content_length = len(path)
+            response_ok = (f'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {content_length}\r\n\r\n{response_body}').encode()
         
-        response_ok = (f'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {content_length}\r\n\r\n{response_body}').encode()
+
+        
 
         response_failed = ('HTTP/1.1 404 Not Found\r\n\r\n').encode()
 
