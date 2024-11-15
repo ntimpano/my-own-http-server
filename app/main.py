@@ -3,17 +3,13 @@ import threading
 
 valid_path = ['/', '/echo', '/index.html', '/user-agent']
 
-def main():
-    while True:
-        server = socket.create_server(('localhost', 4221), reuse_port=True)
-        client_socket, client_addr = server.accept() 
-
+def client_handle(client_socket):
+    try:
         client_req_encode = client_socket.recv(4096)
         client_req_decode = client_req_encode.decode()
-
         split_req = client_req_decode.split()
 
-        path = split_req[1] #esto es donde quiero acceder el usuario. Ej: localhost/index.html
+        path = split_req[1]
 
         if 'echo' in path:
             path = path.replace('/echo/', '')
@@ -26,7 +22,8 @@ def main():
             content_length = len(path)
             response_ok = (f'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {content_length}\r\n\r\n{response_body}').encode()
         elif path == '/':
-            response_ok = (b'HTTP/1.1 200 OK\r\n\r\n')
+            response_ok = (f'HTTP/1.1 200 OK\r\n\r\n').encode()
+        else:
             path = path.replace('/', '')
             response_body = path
             content_length = len(path)
@@ -39,7 +36,27 @@ def main():
         else:
             client_socket.send(response_failed)
 
+    except Exception as e:
+        print(f"Error handling client: {e}")
+    finally:
+        # Close the connection
         client_socket.close()
+
+
+
+def main():
+    # Create the server socket once
+    server = socket.create_server(('localhost', 4221), reuse_port=True)
+    print("Server running on localhost:4221...")
+
+    while True:
+        # Accept a new client connection
+        client_socket, client_addr = server.accept()
+        print(f"New connection from {client_addr}")
+
+        # Create and start a new thread for the client
+        client_thread = threading.Thread(target=client_handle, args=(client_socket,))
+        client_thread.start()
         
 
 main()
