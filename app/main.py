@@ -25,6 +25,7 @@ def main():
             content_length = len(path)
         else:
             path = path.replace('/', '')
+            response_body = path
             content_length = len(path)
         
         response_ok = (f'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {content_length}\r\n\r\n{response_body}').encode()
