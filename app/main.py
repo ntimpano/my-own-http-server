@@ -14,13 +14,22 @@ def client_handle(client_socket):
         split_req = client_req_decode.split()
 
         path = split_req[1]
-        print(f'REQ COMP: {client_req_decode.split('\r\n')}')
+
+        print(f'DEBUG: {split_req}')
         
         if 'echo' in path:
             path = path.replace('/echo/', '')
             response_body = path
-            content_length = len(path)
-            response_ok = (f'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {content_length}\r\n\r\n{response_body}').encode()
+            content_length = len(path)  
+            if 'Accept-Encoding:' in split_req:
+                print(f'DEBUG: {split_req}')
+                if split_req[6] != 'invalid-encoding':
+                    encoding = split_req[6]
+                    response_ok = (f'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: {encoding}\r\nContent-Length: {content_length}\r\n\r\n{response_body}').encode()
+                else:
+                    response_ok = (f'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {content_length}\r\n\r\n{response_body}').encode()
+            else:
+                response_ok = (f'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {content_length}\r\n\r\n{response_body}').encode()
         elif 'user-agent' in path:
             path = split_req[6]
             response_body = path
@@ -46,11 +55,8 @@ def client_handle(client_socket):
                 os.makedirs(dir, exist_ok=True)
                 filename = os.path.basename(split_req[1])
                 destination = os.path.join(dir, filename)
-                print(f'DESTINATION: {destination}')
                 with open(destination, 'w') as dst_file:
-                    print(f'DST_FILE: {client_req_decode.split('\r\n')[5]}')
                     dst_file.write(client_req_decode.split('\r\n')[5])         
-                print(f'CREATED FILE: {destination}')
                 response_ok = b'HTTP/1.1 201 Created\r\n\r\n'
                 
         else:
@@ -77,12 +83,10 @@ def client_handle(client_socket):
 def main():
     # Create the server socket once
     server = socket.create_server(('localhost', 4221), reuse_port=True)
-    print("Server running on localhost:4221...")
 
     while True:
         # Accept a new client connection
         client_socket, client_addr = server.accept()
-        print(f"New connection from {client_addr}")
 
         # Create and start a new thread for the client
         client_thread = threading.Thread(target=client_handle, args=(client_socket,))
