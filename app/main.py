@@ -1,5 +1,5 @@
 import socket
-
+import threading
 
 valid_path = ['/', '/echo', '/index.html', '/user-agent']
 
@@ -26,18 +26,12 @@ def main():
             content_length = len(path)
             response_ok = (f'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {content_length}\r\n\r\n{response_body}').encode()
         elif path == '/':
-            response_body = path
-            content_length = len(path)
-            response_ok = (f'HTTP/1.1 200 OK\r\n\r\n').encode()
-        else:
+            response_ok = (b'HTTP/1.1 200 OK\r\n\r\n')
             path = path.replace('/', '')
             response_body = path
             content_length = len(path)
             response_ok = (f'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {content_length}\r\n\r\n{response_body}').encode()
         
-
-        
-
         response_failed = ('HTTP/1.1 404 Not Found\r\n\r\n').encode()
 
         if split_req[1] in valid_path or split_req[1].startswith('/echo'):
