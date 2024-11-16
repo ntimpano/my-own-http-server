@@ -2,6 +2,7 @@ import socket
 import threading
 import sys
 import os
+import gzip
 
 valid_path = ['/', '/echo', '/index.html', '/user-agent', '/files']
 valid_encoding = ['gzip']
@@ -24,7 +25,11 @@ def client_handle(client_socket):
             for item in split_req:
                 if item.strip(',') in valid_encoding:
                     encoding = item.replace(',', '')
-                    response_ok = (f'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: {encoding}\r\nContent-Length: #{content_length}\r\n\r\n{response_body}').encode()
+                    compressed_body = gzip.compress(response_body.encode())
+                    content_length = len(compressed_body)
+                    print(f'COMPRESSED BODY: {compressed_body}')
+                    print(f'CONTENT LENGTH: {content_length}')
+                    response_ok = (f'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: {encoding}\r\nContent-Length: {content_length}\r\n\r\n').encode() + compressed_body
                     break
             else:
                 response_ok = (f'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {content_length}\r\n\r\n{response_body}').encode()
