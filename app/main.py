@@ -4,6 +4,7 @@ import sys
 import os
 
 valid_path = ['/', '/echo', '/index.html', '/user-agent', '/files']
+valid_encoding = ['gzip']
 args = sys.argv
 
 
@@ -15,19 +16,16 @@ def client_handle(client_socket):
 
         path = split_req[1]
 
-        print(f'DEBUG: {split_req}')
         
         if 'echo' in path:
             path = path.replace('/echo/', '')
             response_body = path
             content_length = len(path)  
-            if 'Accept-Encoding:' in split_req:
-                print(f'DEBUG: {split_req}')
-                if split_req[6] != 'invalid-encoding':
-                    encoding = split_req[6]
-                    response_ok = (f'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: {encoding}\r\nContent-Length: {content_length}\r\n\r\n{response_body}').encode()
-                else:
-                    response_ok = (f'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {content_length}\r\n\r\n{response_body}').encode()
+            for item in split_req:
+                if item.strip(',') in valid_encoding:
+                    encoding = item.replace(',', '')
+                    response_ok = (f'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: {encoding}\r\nContent-Length: #{content_length}\r\n\r\n{response_body}').encode()
+                    break
             else:
                 response_ok = (f'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {content_length}\r\n\r\n{response_body}').encode()
         elif 'user-agent' in path:
@@ -75,20 +73,16 @@ def client_handle(client_socket):
     except Exception as e:
         print(f"Error handling client: {e}")
     finally:
-        # Close the connection
         client_socket.close()
 
 
 
 def main():
-    # Create the server socket once
     server = socket.create_server(('localhost', 4221), reuse_port=True)
 
     while True:
-        # Accept a new client connection
         client_socket, client_addr = server.accept()
 
-        # Create and start a new thread for the client
         client_thread = threading.Thread(target=client_handle, args=(client_socket,))
         client_thread.start()
         
